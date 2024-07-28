@@ -1,0 +1,15 @@
+{
+  "name": "show_size_client_desktop",
+  "version": "1.0.0",
+  "description": "Is an app to display the size of all files and Repositories in Folder on Clien Desktop",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1"
+  }
+}

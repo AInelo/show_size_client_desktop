@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory Size Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<h1>Select a Directory</h1>
+<button id="selectDir">Select Directory</button>
+<ul id="fileList"></ul>
+
+<script>
+    async function getDirectoryHandle() {
+        return await window.showDirectoryPicker();
+    }
+
+    async function calculateDirectorySize(directoryHandle) {
+        let totalSize = 0;
+        for await (const [name, handle] of directoryHandle) {
+            if (handle.kind === 'file') {
+                const file = await handle.getFile();
+                totalSize += file.size;
+            } else if (handle.kind === 'directory') {
+                totalSize += await calculateDirectorySize(handle);
+            }
+        }
+        return totalSize;
+    }
+
+    async function listFiles(directoryHandle) {
+        const fileSizes = [];
+        for await (const [name, handle] of directoryHandle) {
+            if (handle.kind === 'file') {
+                const file = await handle.getFile();
+                fileSizes.push({ name, size: file.size });
+            } else if (handle.kind === 'directory') {
+                const size = await calculateDirectorySize(handle);
+                fileSizes.push({ name: `${name}/`, size });
+            }
+        }
+        return fileSizes;
+    }
+
+    function formatSize(size) {
+        const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        let unitIndex = 0;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+            size /= 1024;
+            unitIndex++;
+        }
+        return `${size.toFixed(2)} ${units[unitIndex]}`;
+    }
+
+    document.getElementById('selectDir').addEventListener('click', async () => {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        try {
+            const dirHandle = await getDirectoryHandle();
+            const files = await listFiles(dirHandle);
+
+            files.sort((a, b) => b.size - a.size); // Trier les fichiers par taille décroissante
+
+            files.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = `${file.name}: ${formatSize(file.size)}`;
+                fileList.appendChild(li);
+            });
+        } catch (err) {
+            console.error('Error accessing the file system:', err);
+        }
+    });
+</script>
+</body>
+</html>

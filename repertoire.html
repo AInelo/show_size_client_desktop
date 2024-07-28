@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directory Size Viewer</title>
+</head>
+<body>
+<h1>Select a Directory</h1>
+<input type="file" id="directoryInput" webkitdirectory multiple>
+<ul id="fileList"></ul>
+
+<script>
+    document.getElementById('directoryInput').addEventListener('change', function(event) {
+        const files = event.target.files;
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        const fileSizes = [];
+        let totalSize = 0;
+
+        for (let i = 0; i < files.length; i++) {
+            fileSizes.push({ name: files[i].name, size: files[i].size });
+            totalSize += files[i].size;
+        }
+
+        // Trier les fichiers par taille décroissante
+        fileSizes.sort((a, b) => b.size - a.size);
+
+        // Afficher la liste des fichiers
+        fileSizes.forEach(file => {
+            const li = document.createElement('li');
+            li.textContent = `${file.name}: ${file.size} bytes`;
+            fileList.appendChild(li);
+        });
+
+        // Afficher la taille totale
+        const totalLi = document.createElement('li');
+        totalLi.textContent = `Total: ${totalSize} bytes`;
+        fileList.appendChild(totalLi);
+    });
+</script>
+</body>
+</html>

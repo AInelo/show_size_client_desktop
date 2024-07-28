@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Size Viewer</title>
+</head>
+<body>
+<h1>Upload a ZIP file</h1>
+<form id="uploadForm">
+    <input type="file" id="zipFile" name="zipFile" accept=".zip" required>
+    <button type="submit">Upload</button>
+</form>
+<ul id="fileList"></ul>
+
+<script>
+    const form = document.getElementById('uploadForm');
+    const fileList = document.getElementById('fileList');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData();
+        const file = document.getElementById('zipFile').files[0];
+        formData.append('zipFile', file);
+
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+        fileList.innerHTML = data.map(file => `<li>${file.name}: ${file.size} bytes</li>`).join('');
+    });
+</script>
+</body>
+</html>
